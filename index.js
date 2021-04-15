@@ -137,6 +137,9 @@
 
       cells.push(cellContent);
     }
+
+    // Update from whatever is initially in the textarea
+    onInput();
   }
   
   window.addEventListener("load", load);
