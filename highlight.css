@@ -1,0 +1,38 @@
+.bracket, .operator, .movement, .iostream {
+    font-style: normal;
+}
+
+.bracket {
+    color: #7660d8;
+}
+
+.operator {
+    color: #cd3fda;
+}
+
+.movement {
+    color: #44b5e9;
+}
+
+.iostream {
+    color: #52da36;
+}
+
+.selected {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.caret {
+    width: 0;
+    height: 0.75rem;
+    margin-top: 0.025rem;
+    box-sizing: border-box;
+    outline: 1px solid white;
+    display: inline-block;
+    position: relative;
+    left: 2px;
+}
+
+.caret.hide {
+    outline-color: transparent;
+}
