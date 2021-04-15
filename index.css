@@ -69,7 +69,10 @@ body {
     font-variant-ligatures: none;
     overflow: auto;
     box-sizing: border-box;
+    tab-size: 4;
+    white-space: pre;
 }
+
 
 #editorCover::-webkit-scrollbar, #editorContent::-webkit-scrollbar {
     display: none;

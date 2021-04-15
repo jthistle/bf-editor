@@ -1,16 +1,14 @@
 
 const Highlighter = () => {
   const replacements = [
-    / /g, "&nbsp;",
-    /\t/g, "&#09;",
     /([<>])/g, "<span class='movement'>$1</span>",
     /([\[\]])/g, "<span class='bracket'>$1</span>",
     /([\+-])/g, "<span class='operator'>$1</span>",
     /([\.,])/g, "<span class='iostream'>$1</span>",
-    /\n/g, "<br>",
     /\xfe/g, "<span class='selected'>",
     /\xff/g, "</span>",
-    /\xfd/g, "<span id='caret' class='caret'></span>",
+    /\n\xfd\n/g, "\n<span class='caretContainer'><span id='caret' class='caret'></span></span> \n",
+    /\xfd/g, "<span class='caretContainer'><span id='caret' class='caret'></span></span>",
   ];
 
   let caretHandle = null;
@@ -49,6 +47,7 @@ const Highlighter = () => {
   }
 
   const highlight = (text, selectionStart, selectionEnd) => {
+    text = text + " \n\n\n";
     text = insertAnchors(text, selectionStart, selectionEnd);
 
     for (let i = 0; i < replacements.length; i += 2) {

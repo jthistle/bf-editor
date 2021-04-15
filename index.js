@@ -106,8 +106,20 @@
     document.getElementById("runCode").addEventListener("click", run);
     document.getElementById("stepForward").addEventListener("click", step);
 
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        var start = input.selectionStart;
+        var end = input.selectionEnd;  
+        input.value = input.value.substring(0, start) + "\t" + input.value.substring(end);
+        input.selectionStart = input.selectionEnd = start + 1;
+
+        onInput();
+      }
+    });
+
     // Populate cells
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const cell = document.createElement("div");
       cell.classList.add("cell");
 

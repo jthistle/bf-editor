@@ -22,15 +22,20 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
-.caret {
+.caretContainer {
     width: 0;
-    height: 0.75rem;
-    margin-top: 0.025rem;
-    box-sizing: border-box;
-    outline: 1px solid white;
-    display: inline-block;
+    font-size: 0.85rem;
+    height: 0;
     position: relative;
+    display: inline-block;
+}
+
+.caret {
+    position: absolute;
+    height: 1rem;
+    outline: 1px solid white;
     left: 2px;
+    bottom: -0.2rem;
 }
 
 .caret.hide {
