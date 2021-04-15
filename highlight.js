@@ -1,15 +1,17 @@
 
 const Highlighter = () => {
-  const newline = /\n/g;
-  const space = / /g;
-  const tab = /\t/g;
-  const brackets = /([\[\]])/g;
-  const operators = /([\+-])/g;
-  const iostreams = /([\.,])/g;
-  const movement = /([<>])/g;
-  const startSelect = /\xfe/g;
-  const endSelect = /\xff/g;
-  const caret = /\xfd/g;
+  const replacements = [
+    / /g, "&nbsp;",
+    /\t/g, "&#09;",
+    /([<>])/g, "<span class='movement'>$1</span>",
+    /([\[\]])/g, "<span class='bracket'>$1</span>",
+    /([\+-])/g, "<span class='operator'>$1</span>",
+    /([\.,])/g, "<span class='iostream'>$1</span>",
+    /\n/g, "<br>",
+    /\xfe/g, "<span class='selected'>",
+    /\xff/g, "</span>",
+    /\xfd/g, "<span id='caret' class='caret'></span>",
+  ];
 
   let caretHandle = null;
 
@@ -49,17 +51,11 @@ const Highlighter = () => {
   const highlight = (text, selectionStart, selectionEnd) => {
     text = insertAnchors(text, selectionStart, selectionEnd);
 
-    return text
-        .replace(space, "&nbsp;")
-        .replace(tab, "&#09;")
-        .replace(movement, "<span class='movement'>$1</span>")
-        .replace(brackets, "<span class='bracket'>$1</span>")
-        .replace(operators, "<span class='operator'>$1</span>")
-        .replace(iostreams, "<span class='iostream'>$1</span>")
-        .replace(newline, "<br>")
-        .replace(startSelect, "<span class='selected'>")
-        .replace(endSelect, "</span>")
-        .replace(caret, "<span id='caret' class='caret'></span>");
+    for (let i = 0; i < replacements.length; i += 2) {
+      text = text.replace(replacements[i], replacements[i + 1]);
+    }
+
+    return text;
   }
 
   return {

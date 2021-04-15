@@ -6,7 +6,39 @@ body {
 
 #cellsBar {
     height: 5rem;
-    width: 100vw;
+    display: flex;
+    padding: 1rem 2rem;
+}
+
+.cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.cellContent {
+    color: white;
+    height: 2rem;
+    border: 1px solid #999;
+    line-height: 2rem;
+}
+
+.cellIndex {
+    height: 1.5rem;
+    line-height: 1.5rem;
+    color: #888;
+}
+
+.cellIndex, .cellContent {
+    width: 3rem;
+    font-family: monospace;
+    text-align: center;
+}
+
+.currentCell {
+    background: rgb(243, 203, 91);
+    color: black;
+    font-weight: bold;
+    border-color: white;
 }
 
 #main {
@@ -33,6 +65,14 @@ body {
     border-radius: 5px;
     font-size: 0.85rem;
     line-height: 1rem;
+    scrollbar-width: none;
+    font-variant-ligatures: none;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+#editorCover::-webkit-scrollbar, #editorContent::-webkit-scrollbar {
+    display: none;
 }
 
 #editorContent:focus {
@@ -45,16 +85,8 @@ body {
     left: 0;
     background: #131216;
     color: #777;
-    font-style: italic;
     z-index: 1;
     pointer-events: none;
-    overflow: auto;
-    scrollbar-width: none;
-    font-variant-ligatures: none;
-}
-
-#editorCover::-webkit-scrollbar {
-    display: none;
 }
 
 textarea {

@@ -3,26 +3,25 @@ const Fuckterpreter = (initCode) => {
   const CELL_MAX_VAL = 255;
   const DATA_ARRAY_SIZE = 30000;
   
-  const ACTION_TOKENS = ["+", "-", ">", "<", ",", "."];
+  const ALLOWED_TOKENS = ["+", "-", ">", "<", ",", ".", "[", "]"];
   let code;
   let ast;
   
   // Parse code
   const parse = (code) => {
     const ast = [];
-    for (let char of code) { 
-      if (ACTION_TOKENS.includes(char)) {
+    for (let i = 0; i < code.length; i++) {
+      let char = code[i]; 
+      if (ALLOWED_TOKENS.includes(char)) {
         ast.push({
           tk: char,
-        })
-      } else if (char === "[" || char === "]") {
-        ast.push({
-          tk: char,
-          jmp: -1,
+          textPos: i,
         })
       }
     }
 
+    // Work out which loops jump to where to prevent having to walk entire
+    // ast during execution.
     const loop_stack = [];
     for (let i = 0; i < ast.length; i++) {
       let node = ast[i];
@@ -30,7 +29,7 @@ const Fuckterpreter = (initCode) => {
         loop_stack.push(i);
       } else if (node.tk === "]") {
         if (loop_stack.length === 0) {
-          throw Error("Too many ]");
+          throw Error("Unmatched ]");
         }
 
         node.jmp = loop_stack.pop();
@@ -39,21 +38,32 @@ const Fuckterpreter = (initCode) => {
     }
 
     if (loop_stack.length > 0) {
-      throw Error("Unclosed ]");
+      throw Error("Unmatched ]");
     }
 
     return ast;
   }
 
-  const execute = (ast, inputCallback, outputCallback) => {
+  // Creates a new execution environment and returns API functions to 
+  // access it.
+  const newEnv = (ast, callbacks) => {
+    if (!ast) return null;
+
+    const { input, output } = callbacks;
     const data = Array(DATA_ARRAY_SIZE).fill(0);
     let data_pointer = 0;
     let instruction_pointer = 0;
     const ast_size = ast.length;
-    let node;
 
-    while (1) {
-      node = ast[instruction_pointer];
+    // Carry out the next instruction. Returns true if more instructions
+    // can be executed, otherwise returns false.
+    const next = () => {
+      if (instruction_pointer >= ast_size) {
+        // End of programme
+        return false;
+      }
+
+      let node = ast[instruction_pointer];
       switch (node.tk) {
         case "+":
           data[data_pointer] += 1;
@@ -80,10 +90,18 @@ const Fuckterpreter = (initCode) => {
           }
           break;
         case ".":
-          outputCallback(String.fromCharCode(data[data_pointer]));
+          output(String.fromCharCode(data[data_pointer]));
           break;
         case ",":
-          data[data_pointer] = inputCallback().charCodeAt(0);
+          let char = input();
+          if (char !== undefined && char !== null && char.length === 1) {
+            data[data_pointer] = char.charCodeAt(0);
+          } else {
+            // No more input! End programme
+            console.warn("Ran out of input to read from, ending execution");
+            instruction_pointer = ast.length + 1;
+            return false;
+          }
           break;
         case "[":
           if (data[data_pointer] === 0) {
@@ -98,10 +116,24 @@ const Fuckterpreter = (initCode) => {
       }
       instruction_pointer += 1;
 
-      if (instruction_pointer >= ast_size) {
-        // End of programme
-        break;
-      }
+      return true;
+    }
+    
+    const all = () => {
+      while (next()) {}
+    }
+
+    const untilTextPos = (pos) => {
+      while (instruction_pointer < ast.length && ast[instruction_pointer].textPos < pos && next()) {}
+    }
+
+    return {
+      executeAll: all,
+      executeNext: next,
+      executeUntilTextPos: untilTextPos,
+      getCells: () => data,
+      getCurrentCell: () => data_pointer,
+      finished: () => instruction_pointer >= ast.length,
     }
   }
 
@@ -116,8 +148,6 @@ const Fuckterpreter = (initCode) => {
 
   return {
     setCode,
-    execute: (inputCallback, outputCallback) => {
-      execute(ast, inputCallback, outputCallback);
-    },
+    newEnv: (callbacks) => newEnv(ast, callbacks),
   }
 }
