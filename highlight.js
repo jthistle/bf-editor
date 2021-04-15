@@ -1,5 +1,5 @@
 
-const highlight = (function(){
+const Highlighter = () => {
   const newline = /\n/g;
   const space = / /g;
   const tab = /\t/g;
@@ -13,7 +13,7 @@ const highlight = (function(){
 
   let caretHandle = null;
 
-  function highlight(text, selectionStart, selectionEnd) {
+  const insertAnchors = (text, selectionStart, selectionEnd) => {
     // We mark out the area that needs to have selection styling applied with unicode characters that are
     // pretty much never going to be input by the user (\xfd, \xfe etc.)
     if (selectionStart !== selectionEnd) {
@@ -43,6 +43,12 @@ const highlight = (function(){
       }, 500);
     }
 
+    return text;
+  }
+
+  const highlight = (text, selectionStart, selectionEnd) => {
+    text = insertAnchors(text, selectionStart, selectionEnd);
+
     return text
         .replace(space, "&nbsp;")
         .replace(tab, "&#09;")
@@ -56,5 +62,7 @@ const highlight = (function(){
         .replace(caret, "<span id='caret' class='caret'></span>");
   }
 
-  return highlight;
-})();
+  return {
+    highlight,
+  };
+};

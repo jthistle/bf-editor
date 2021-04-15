@@ -4,21 +4,26 @@ body {
     background: #201f25;
 }
 
-#top-bar {
+#cellsBar {
     height: 5rem;
     width: 100vw;
 }
 
 #main {
-    display: flex;
     padding: 2rem;
+}
+
+.row {
+    display: flex;
+    width: 100%;
 }
 
 #editor {
     position: relative;
-    height: 50vh;
+    height: 70vh;
     flex-grow: 1;
     font-family: monospace;
+    margin-bottom: 2rem;
 }
 
 #editorCover, #editorContent {
@@ -39,12 +44,33 @@ body {
     top: 0;
     left: 0;
     background: #131216;
-    color: #999;
+    color: #777;
     font-style: italic;
     z-index: 1;
     pointer-events: none;
+    overflow: auto;
+    scrollbar-width: none;
+    font-variant-ligatures: none;
+}
+
+#editorCover::-webkit-scrollbar {
+    display: none;
 }
 
 textarea {
     word-break: break-all;
+}
+
+#output {
+    margin: 0 1rem;
+    overflow-x: auto;
+    padding: 0 1rem;
+    border-radius: 1rem;
+    background: #131216;
+    font-family: monospace;
+    color: white;
+    font-size: 1.2rem;
+    width: 20rem;
+    height: 3rem;
+    line-height: 3rem;
 }

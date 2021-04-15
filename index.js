@@ -1,20 +1,52 @@
 
 // namespace
 (function() {
-  let editor;
-
   function load() {
-    input = document.getElementById("editorContent");
-    editor = document.getElementById("editorCover");
+    let input = document.getElementById("editorContent");
+    let editor = document.getElementById("editorCover");
 
-    const rehighlight = () => {
+    let { highlight } = Highlighter();
+
+    let { setCode, execute } = Fuckterpreter();
+
+    const onInput = () => {
+      onUpdate();
+      
+      try {
+        setCode(input.value);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const onUpdate = () => {
       let out = highlight(input.value, input.selectionStart, input.selectionEnd);
       editor.innerHTML = out;
     };
 
-    input.addEventListener("input", rehighlight);
+    const syncScroll = () => {
+      editor.scrollTop = input.scrollTop;
+    }
 
-    document.addEventListener("selectionchange", rehighlight);
+    input.addEventListener("input", onInput);
+    input.addEventListener("scroll", syncScroll);
+    input.addEventListener("blur", onUpdate);
+    document.addEventListener("selectionchange", onUpdate);
+
+    document.getElementById("runCode").addEventListener("click", () => {
+      output.textContent = "";
+
+      try {
+        execute(
+          () => "a",
+          (x) => {
+            output.textContent += x;
+          }
+        )
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
   
   window.addEventListener("load", load);
