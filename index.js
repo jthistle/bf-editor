@@ -1,16 +1,17 @@
 
 // namespace
 (function() {
-  let inputBuffer;
-  let input, editor, cellContainer, output, env;
-  let cells = [];
-
   const load = () => {
     // Bind elements
-    input = document.getElementById("editorContent");
-    editor = document.getElementById("editorCover");
-    cellContainer = document.getElementById("cellsBar");
-    output = document.getElementById("output");
+    let input = document.getElementById("editorContent");
+    let editor = document.getElementById("editorCover");
+    let cellContainer = document.getElementById("cellsBar");
+    let output = document.getElementById("output");
+    let programmeInput = document.getElementById("input");
+
+    let cells = [];
+    let env = null;
+    let inputBuffer = [];
 
     const callbacks = {
       input: () => inputBuffer.pop(),
@@ -34,7 +35,10 @@
     }
 
     const onUpdate = () => {
-      let out = highlight(input.value, input.selectionStart, input.selectionEnd);
+      let out = highlight(input.value, {
+        selectionStart: input.selectionStart, 
+        selectionEnd: input.selectionEnd
+      });
       editor.innerHTML = out;
     };
   
@@ -66,7 +70,7 @@
 
     const envCheck = () => {
       if (!env || env.finished()) {
-        inputBuffer = "hello world".split("").reverse();
+        resetInputBuffer();
         output.textContent = "";
         env = newEnv(callbacks);
       } 
@@ -88,9 +92,26 @@
     }
 
     const selectionChange = () => {
+      if (document.getSelection().anchorNode !== input.parentNode) return;
+
       onUpdate();
       if (input.selectionStart !== input.selectionEnd) return;
 
+      env = null;
+      envCheck();
+      const { executeUntilTextPos } = env;
+      executeUntilTextPos(input.selectionStart);
+      updateCells();
+    }
+
+    const resetInputBuffer = () => {
+      inputBuffer = programmeInput.value.split("").reverse();
+    }
+
+    const updateInputBuffer = () => {
+      resetInputBuffer();
+      
+      if (input.selectionStart !== input.selectionEnd) return;
       env = null;
       envCheck();
       const { executeUntilTextPos } = env;
@@ -105,6 +126,7 @@
     document.addEventListener("selectionchange", selectionChange);
     document.getElementById("runCode").addEventListener("click", run);
     document.getElementById("stepForward").addEventListener("click", step);
+    document.getElementById("input").addEventListener("input", updateInputBuffer);
 
     input.addEventListener("keydown", function (e) {
       if (e.key === "Tab") {

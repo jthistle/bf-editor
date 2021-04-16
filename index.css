@@ -2,6 +2,8 @@
 body {
     margin: 0;
     background: #201f25;
+    font-family: monospace;
+    color: white;
 }
 
 #cellsBar {
@@ -16,7 +18,6 @@ body {
 }
 
 .cellContent {
-    color: white;
     height: 2rem;
     border: 1px solid #999;
     line-height: 2rem;
@@ -30,7 +31,6 @@ body {
 
 .cellIndex, .cellContent {
     width: 3rem;
-    font-family: monospace;
     text-align: center;
 }
 
@@ -54,7 +54,6 @@ body {
     position: relative;
     height: 70vh;
     flex-grow: 1;
-    font-family: monospace;
     margin-bottom: 2rem;
 }
 
@@ -96,16 +95,26 @@ textarea {
     word-break: break-all;
 }
 
-#output {
-    margin: 0 1rem;
-    overflow-x: auto;
-    padding: 0 1rem;
-    border-radius: 1rem;
+#input, #output {
+    font-size: 1rem;
     background: #131216;
-    font-family: monospace;
-    color: white;
-    font-size: 1.2rem;
+    overflow-x: auto;
+    border-radius: 1rem;
     width: 20rem;
-    height: 3rem;
     line-height: 3rem;
+    height: 3rem;
+    margin: 0 1rem;
+    padding: 0 1rem;
+    outline: none;
+    border: none;
+}
+
+#input {
+    color: white;
+    font-family: monospace;
+}
+
+.iotext {
+    line-height: 3rem;
+    margin: 0 1rem;
 }

@@ -13,7 +13,7 @@ const Highlighter = () => {
 
   let caretHandle = null;
 
-  const insertAnchors = (text, selectionStart, selectionEnd) => {
+  const insertAnchors = (text, { selectionStart, selectionEnd, highlight }) => {
     // We mark out the area that needs to have selection styling applied with unicode characters that are
     // pretty much never going to be input by the user (\xfd, \xfe etc.)
     if (selectionStart !== selectionEnd) {
@@ -46,9 +46,9 @@ const Highlighter = () => {
     return text;
   }
 
-  const highlight = (text, selectionStart, selectionEnd) => {
+  const highlight = (text, hooks) => {
     text = text + " \n\n\n";
-    text = insertAnchors(text, selectionStart, selectionEnd);
+    text = insertAnchors(text, hooks);
 
     for (let i = 0; i < replacements.length; i += 2) {
       text = text.replace(replacements[i], replacements[i + 1]);
