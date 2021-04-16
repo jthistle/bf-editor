@@ -24,7 +24,7 @@
     const { setCode, newEnv } = Fuckterpreter();
 
     const onInput = () => {
-      onUpdate();
+      rehighlight();
       
       try {
         setCode(input.value);
@@ -34,10 +34,11 @@
       }
     }
 
-    const onUpdate = () => {
+    const rehighlight = () => {
       let out = highlight(input.value, {
         selectionStart: input.selectionStart, 
-        selectionEnd: input.selectionEnd
+        selectionEnd: input.selectionEnd,
+        highlight: env ? env.getPreviousTextPos() : null,
       });
       editor.innerHTML = out;
     };
@@ -76,12 +77,14 @@
       } 
     }
 
-    const run = () => {
+    const run = async () => {
       env = null;
       envCheck();
-      const { executeAll } = env;
-      executeAll();
-      updateCells();
+      const { finished } = env;
+      while (!finished()) {
+        step();
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
     }
 
     const step = () => {
@@ -89,28 +92,22 @@
       const { executeNext } = env;
       executeNext();
       updateCells();
+      rehighlight();
     }
 
     const selectionChange = () => {
       if (document.getSelection().anchorNode !== input.parentNode) return;
 
-      onUpdate();
-      if (input.selectionStart !== input.selectionEnd) return;
-
-      env = null;
-      envCheck();
-      const { executeUntilTextPos } = env;
-      executeUntilTextPos(input.selectionStart);
-      updateCells();
+      rehighlight();
     }
 
     const resetInputBuffer = () => {
-      inputBuffer = programmeInput.value.split("").reverse();
+      inputBuffer = (programmeInput.value + "\x00").split("").reverse();
     }
 
     const updateInputBuffer = () => {
       resetInputBuffer();
-      
+
       if (input.selectionStart !== input.selectionEnd) return;
       env = null;
       envCheck();
@@ -122,7 +119,7 @@
     // Bind events
     input.addEventListener("input", onInput);
     input.addEventListener("scroll", syncScroll);
-    input.addEventListener("blur", onUpdate);
+    input.addEventListener("blur", rehighlight);
     document.addEventListener("selectionchange", selectionChange);
     document.getElementById("runCode").addEventListener("click", run);
     document.getElementById("stepForward").addEventListener("click", step);

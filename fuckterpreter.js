@@ -1,4 +1,19 @@
 
+function ParseError (msg) {
+  return {
+    type: "ParseError",
+    message: msg,
+  }
+}
+
+function RuntimeError (msg) {
+  return {
+    type: "RuntimeError",
+    message: msg,
+  }
+}
+
+
 const Fuckterpreter = (initCode) => {
   const CELL_MAX_VAL = 255;
   const DATA_ARRAY_SIZE = 30000;
@@ -29,7 +44,7 @@ const Fuckterpreter = (initCode) => {
         loop_stack.push(i);
       } else if (node.tk === "]") {
         if (loop_stack.length === 0) {
-          throw Error("Unmatched ]");
+          throw ParseError("Unmatched ]");
         }
 
         node.jmp = loop_stack.pop();
@@ -38,7 +53,7 @@ const Fuckterpreter = (initCode) => {
     }
 
     if (loop_stack.length > 0) {
-      throw Error("Unmatched ]");
+      throw ParseError("Unmatched ]");
     }
 
     return ast;
@@ -80,13 +95,13 @@ const Fuckterpreter = (initCode) => {
         case ">":
           data_pointer += 1;
           if (data_pointer > DATA_ARRAY_SIZE) {
-            throw Error("Data pointer out of bounds - too far right");
+            throw RuntimeError("Data pointer out of bounds - too far right");
           }
           break;
         case "<":
           data_pointer -= 1;
           if (data_pointer < 0) {
-            throw Error("Data pointer out of bounds - too far left");
+            throw RuntimeError("Data pointer out of bounds - too far left");
           }
           break;
         case ".":
@@ -113,6 +128,10 @@ const Fuckterpreter = (initCode) => {
             instruction_pointer = node.jmp;
           }
           break;
+        case "s":
+          // s is an optimizer token that sets a cell to a value
+          data[data_pointer] = node.value;
+          break;
       }
       instruction_pointer += 1;
 
@@ -133,6 +152,8 @@ const Fuckterpreter = (initCode) => {
       executeUntilTextPos: untilTextPos,
       getCells: () => data,
       getCurrentCell: () => data_pointer,
+      getCurrentTextPos: () => ast[instruction_pointer].textPos,
+      getPreviousTextPos: () => instruction_pointer > 0 ? ast[instruction_pointer - 1].textPos : 0,
       finished: () => instruction_pointer >= ast.length,
     }
   }

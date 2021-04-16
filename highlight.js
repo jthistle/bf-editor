@@ -5,6 +5,7 @@ const Highlighter = () => {
     /([\[\]])/g, "<span class='bracket'>$1</span>",
     /([\+-])/g, "<span class='operator'>$1</span>",
     /([\.,])/g, "<span class='iostream'>$1</span>",
+    /\xfc(<span.+?span>|.)/g, "<span class='highlighted'>$1</span>",
     /\xfe/g, "<span class='selected'>",
     /\xff/g, "</span>",
     /\n\xfd\n/g, "\n<span class='caretContainer'><span id='caret' class='caret'></span></span> \n",
@@ -13,13 +14,33 @@ const Highlighter = () => {
 
   let caretHandle = null;
 
+  const insertIntoText = (text, items) => {
+    items = items.sort((a, b) => a[1] - b[1]);
+    
+    let last = 0;
+    let acc = "";
+    for (let i = 0; i < items.length; i++) {
+      acc += text.slice(last, items[i][1]) + items[i][0];
+      last = items[i][1];
+    }
+    acc += text.slice(last)
+    return acc;
+  }
+
   const insertAnchors = (text, { selectionStart, selectionEnd, highlight }) => {
+    let replacements = [];
+
+    if (highlight) {
+      replacements.push(["\xfc", highlight]);
+    }
+
     // We mark out the area that needs to have selection styling applied with unicode characters that are
     // pretty much never going to be input by the user (\xfd, \xfe etc.)
     if (selectionStart !== selectionEnd) {
-      text = text.slice(0, selectionStart) + "\xfe" + text.slice(selectionStart, selectionEnd) + "\xff" + text.slice(selectionEnd);
+      replacements.push(["\xfe", selectionStart]);
+      replacements.push(["\xff", selectionEnd]);
     } else if (selectionStart !== null) {
-      text = text.slice(0, selectionStart) + "\xfd" + text.slice(selectionStart);
+      replacements.push(["\xfd", selectionStart]);
 
       if (caretHandle) {
         clearInterval(caretHandle);
@@ -43,7 +64,7 @@ const Highlighter = () => {
       }, 500);
     }
 
-    return text;
+    return insertIntoText(text, replacements);
   }
 
   const highlight = (text, hooks) => {

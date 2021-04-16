@@ -118,3 +118,11 @@ textarea {
     line-height: 3rem;
     margin: 0 1rem;
 }
+
+#options {
+    margin: 1rem 0;
+}
+
+#options label {
+    display: inline-block;
+}

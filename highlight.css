@@ -22,6 +22,15 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
+.highlighted {
+    background-color: #ffb223;
+    color: black;
+}
+
+.highlighted > * {
+    color: black !important;
+}
+
 .caretContainer {
     width: 0;
     font-size: 0.85rem;
@@ -34,7 +43,7 @@
     position: absolute;
     height: 1rem;
     outline: 1px solid white;
-    left: 2px;
+    left: 1px;
     bottom: -0.2rem;
 }
 
